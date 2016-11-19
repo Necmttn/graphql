@@ -19,8 +19,7 @@ app.post('/graphql', (req, res) => {
 });
 
 let server = app.listen(PORT, function () {
-  let host = server.address().address;
   let port = server.address().port;
 
-  console.log('GraphQL 👻 listening at http://', host, port);
+  console.log(`GraphQL 👻  listening at http://localhost:${port}`);
 })

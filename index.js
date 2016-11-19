@@ -1,2 +1,1 @@
-require('babel-register');
-require('./server.js');
+alert("hello relay!");
