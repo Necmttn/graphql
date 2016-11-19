@@ -1,3 +1,5 @@
+var babel-core = require('babel-core');
+
 import express from 'express';
 import schema from './schema';
 
