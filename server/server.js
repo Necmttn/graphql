@@ -1,5 +1,3 @@
-var babel-core = require('babel-core');
-
 import express from 'express';
 import schema from './schema';
 
@@ -22,6 +20,5 @@ app.post('/graphql', (req, res) => {
 
 let server = app.listen(PORT, function () {
   let port = server.address().port;
-
   console.log(`GraphQL 👻  listening at http://localhost:${port}`);
 })
