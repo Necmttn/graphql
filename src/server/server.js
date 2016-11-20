@@ -1,6 +1,5 @@
 import express from 'express';
 import schema from './schema';
-
 import { graphql } from 'graphql';
 import bodyParser from 'body-parser';
 
