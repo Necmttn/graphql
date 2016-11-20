@@ -1,3 +1,5 @@
+const Immutable = require('immutable');
+
 import Immutable from 'immutable'
 
 const immutableState = Immutable.Map({

@@ -102,15 +102,46 @@ var queryType = new GraphQLObjectType({
   }
 })
 
-
 function getGoldberg(id) {
   return goldbergs[id]
+}
+
+// The "mutation type"
+
+var mutationType = new GraphQLObjectType({
+  name: 'mutation',
+  description: 'updates goldberg',
+  fields: {
+    updateGoldberg: {
+      type: GraphQLString,
+      args: {
+        id: {
+          type: GraphQLInt,
+          description: "Goldberg ID"
+        },
+        character: {
+          type: GraphQLString,
+          description: "New character name"
+        }
+      },
+      resolve: function(_, args) {
+        return updateGoldberg(args.id, args.character)
+      }
+    }
+  }
+})
+
+
+function updateGoldberg(id, character) {
+  var item = goldbergs[id]
+  return item;
 }
 
 
 // Graphql Root  similar to redux reducer Combine thing.
 var schema = new GraphQLSchema({
-  query: queryType
+  query: queryType,
+  mutation: mutationType
 });
 
 
