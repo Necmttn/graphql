@@ -1,25 +1,19 @@
-import express from 'express';
-import schema from './schema';
-import { graphql } from 'graphql';
-import bodyParser from 'body-parser';
+import express from 'express'
+import Schema from './schema'
+import graphQLHTTP from 'express-graphql'
 
 let app = express();
-let PORT = 3000;
 
-// parse POST body as a text
-app.use(bodyParser.text({ type: 'application/graphql' }));
+app.use('/', graphQLHTTP({
+  schema: Schema,
+  pretty: true,
+  graphiql: true
+}))
 
-app.post('/graphql', (req, res) => {
-  // execute GraphQL!
-  graphql(schema, req.body)
-  .then((result) => {
-    res.send(JSON.stringify(result, null, 2));
-  });
-});
-
-let server = app.listen(PORT, function () {
-  let host = server.address().address;
-  let port = server.address().port;
-
-  console.log('GraphQL 👻 listening at http://', host, port);
+app.listen(process.env.PORT || 8080, (err) => {
+  if (err) {
+    console.error(err)
+    return
+  }
+  console.log(`GraphQL Server is now running on localhost:${process.env.PORT || 8080}`)
 })
