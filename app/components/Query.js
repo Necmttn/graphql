@@ -7,11 +7,6 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { getGraph } from '../actions/actions'
 
-function renderPok() {
-  console.log("pok mu var amks.");
-}()
-
-
 class Query extends Component {
   componentDidMount() {
     this.props.dispatch(
