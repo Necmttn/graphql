@@ -21,8 +21,8 @@
   },
   "dependencies": {
     "babel": "^6.5.2",
-    "body-parser": "^1.15.2",
     "express-graphql": "^0.6.1",
-    "graphql": "^0.8.2"
+    "graphql": "^0.8.2",
+    "mongoose": "^4.6.8"
   }
 }

@@ -1,38 +1,112 @@
+import mongoose from 'mongoose'
+
 import {
   GraphQLObjectType,
+  GraphQLBoolean,
+  GraphQLID,
+  GraphQLString,
+  GraphQLList,
+  GraphQLNonNull,
   GraphQLSchema,
   GraphQLInt
 } from 'graphql';
 
-let count = 0;
+// Let Define Mongoose Schema
+var PRODUCT = mongoose.model('Product', {
+  id: mongoose.Schema.Types.ObjectId,
+  title: String,
+  inStock: Boolean
+})
 
-let schema = new GraphQLSchema({
-  query: new GraphQLObjectType({
-    name: 'RootQueryType',
-    fields: {
-      count: {
-        type: GraphQLInt,
-        // Add the Description
-        description: 'The Count!',
-        resolve: function() {
-          return count;
-        }
-      }
+// Mongoose Connection
+var COMPOSE_URI_DEFAULT = 'mongodb://localhost/test'
+mongoose.connect(process.env.COMPOSE_URI || COMPOSE_URI_DEFAULT, function (error) {
+  if (error) console.error(error)
+  else console.log('mongo connected')
+})
+
+
+// Product type for GraphQL
+let productType = new GraphQLObjectType({
+  name: 'product',
+  fields: () => ({
+    id: {
+      type: GraphQLID,
+      description: 'product id '
+    },
+    title: {
+      type: GraphQLString,
+      description: 'product title'
+    },
+    inStock: {
+      type: GraphQLBoolean,
+      description: 'product stock status'
     }
-  }),
-  mutation: new GraphQLObjectType({
-    name: 'RootMutationType',
-    fields: {
-      updateCount: {
-        type: GraphQLInt,
-        description: 'Updates the count',
-        resolve: function() {
-          count += 1;
-          return count;
-        }
+  })
+})
+
+// Function for fetch all product
+
+const productListAll = () => {
+  return new Promise((resolve, reject) => {
+    PRODUCT.find((err, products) => {
+      if (err) reject(err)
+      else resolve(products)
+    })
+  })
+}
+// A GraphQL schema provides a root type for each kind of operation.
+// Query one is here.
+
+const QueryType = new GraphQLObjectType({
+  name: 'Query',
+  fields: () => ({
+    products: {
+      type: new GraphQLList(productType),
+      resolve: () => {
+        return productListAll()
       }
     }
   })
+})
+
+const mutationAdd = {
+    type: productType,
+    description: 'Add a Product',
+    args: {
+      title: {
+        name: 'Product title',
+        type: new GraphQLNonNull(GraphQLString)
+      }
+    },
+    resolve: (root, args) => {
+      let newProduct = new PRODUCT({
+        title: args.title,
+        inStock: false
+      })
+      newProduct.id = newProduct._id
+      return new Promise(function(resolve, reject) {
+        newProduct.save((err) => {
+          if (err) reject(err)
+          else resolve(newProduct)
+        })
+      })
+    }
+}
+
+const MutationType = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    add: mutationAdd,
+  }
+})
+
+
+
+
+let schema = new GraphQLSchema({
+  query: QueryType,
+  mutation: MutationType
 });
 
 export default schema;
