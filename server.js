@@ -1,26 +1,152 @@
-import express from 'express';
-import schema from './schema';
+var webpack = require('webpack')
+var WebpackDevServer = require('webpack-dev-server')
+var express = require('express')
+var graphqlHTTP = require('express-graphql')
+var graphql = require('graphql')
 
-import { graphql } from 'graphql';
-import bodyParser from 'body-parser';
+var GraphQLSchema = graphql.GraphQLSchema;
+var GraphQLObjectType = graphql.GraphQLObjectType;
+var GraphQLString = graphql.GraphQLString;
+var GraphQLInt = graphql.GraphQLInt;
 
-let app = express();
-let PORT = 3000;
+var goldbergs = {
+ 1: {
+   character: "Beverly Goldberg",
+   actor: "Wendi McLendon-Covey",
+   role: "matriarch",
+   traits: "embarrassing, overprotective",
+   id: 1
+ },
+ 2: {
+   character: "Murray Goldberg",
+   actor: "Jeff Garlin",
+   role: "patriarch",
+   traits: "gruff, lazy",
+   id: 2
+ },
+ 3: {
+   character: "Erica Goldberg",
+   actor: "Hayley Orrantia",
+   role: "oldest child",
+   traits: "rebellious, nonchalant",
+   id: 3
+ },
+ 4: {
+   character: "Barry Goldberg",
+   actor: "Troy Gentile",
+   role: "middle child",
+   traits: "dim-witted, untalented",
+   id: 4
+ },
+ 5: {
+   character: "Adam Goldberg",
+   actor: "Sean Giambrone",
+   role: "youngest child",
+   traits: "geeky, pop-culture obsessed",
+   id: 5
+ },
+ 6: {
+   character: "Albert 'Pops' Solomon",
+   actor: "George Segal",
+   role: "grandfather",
+   traits: "goofy, laid back",
+   id: 6
+ }
+}
 
-// parse POST body as a text
-app.use(bodyParser.text({ type: 'application/graphql' }));
 
-app.post('/graphql', (req, res) => {
-  // execute GraphQL!
-  graphql(schema, req.body)
-  .then((result) => {
-    res.send(JSON.stringify(result, null, 2));
-  });
+var goldbergType = new GraphQLObjectType({
+  name: "Goldberg",
+  description: "Member of the goldbergs",
+  fields: {
+    character: {
+      type: GraphQLString,
+      description: "Name of the character"
+    },
+    actor: {
+      type: GraphQLString,
+      description: "Actor playing the character"
+    },
+    role: {
+      type: GraphQLString,
+      description: "Family role"
+    },
+    traits: {
+      type: GraphQLString,
+      description: "traits this  blab bla bla of the character"
+    },
+    id: {
+      type: GraphQLInt,
+      description: "ID of this Goldberg"
+    }
+  }
+})
+
+// The “query type” specifies how we’ll query our data.
+
+var queryType = new GraphQLObjectType({
+  name: "query",
+  description: "Goldberg query",
+  fields: {
+    goldberg: {
+      type: goldbergType,   // which we defined earlier check line 58
+      args: {
+        id: {
+          type: GraphQLInt
+        }
+      },
+      resolve: function(_, args){  // this is define how we query the thing.
+        return getGoldberg(args.id)
+      }
+    }
+  }
+})
+
+
+function getGoldberg(id) {
+  return goldbergs[id]
+}
+
+
+// Graphql Root  similar to redux reducer Combine thing.
+var schema = new GraphQLSchema({
+  query: queryType
 });
 
-let server = app.listen(PORT, function () {
-  let host = server.address().address;
-  let port = server.address().port;
 
-  console.log('GraphQL 👻 listening at http://', host, port);
+var server = express()
+server.use('/', graphqlHTTP({ schema: schema, graphiql: true}))
+server.listen(8080)
+
+var compiler = webpack({
+  entry: "./index.js",
+  output: {
+    path: __dirname,
+    filename: "bundle.js",
+    publicPath: "/static/"
+  },
+  module: {
+    loaders: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: "babel-loader"
+      }
+    ]
+  }
 })
+
+var app = new WebpackDevServer(compiler, {
+  contentBase: "/public/",
+  proxy: {"/graphql": `http://localhost:${8080}`},
+  publicPath: "/static/",
+  stats: {colors: true}
+})
+
+app.use("/", express.static("static"))
+app.listen(3000);
+console.log("The App server is running")
+
+
+
+console.log(" Server is runned")
