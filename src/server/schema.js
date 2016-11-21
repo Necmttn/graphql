@@ -24,8 +24,6 @@ mongoose.connect(process.env.COMPOSE_URI || COMPOSE_URI_DEFAULT, function (error
   if (error) console.error(error)
   else console.log('mongo connected')
 })
-
-
 // Product type for GraphQL
 let productType = new GraphQLObjectType({
   name: 'product',
@@ -94,7 +92,7 @@ const mutationAdd = {
     }
 }
 
-// FIXME:0 rename this motherfucker
+// FIXME: rename this motherfucker id:0
 
 const mutationDestroy = {
   type: productType,
@@ -123,7 +121,7 @@ const mutationDestroy = {
   }
 }
 
-// TODO:10 fix the name accordingl
+// TODO: fix the name accordingl id:1
 const MutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
