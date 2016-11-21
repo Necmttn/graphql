@@ -1,4 +1,3 @@
-# GraphQL 101
+# Kelimelik
 
-
-I'm trying different tutorials here. 
+It's a OpenSource Turkish - Chinese Dictionary
