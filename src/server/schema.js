@@ -85,7 +85,7 @@ const mutationAdd = {
         inStock: false
       })
       newProduct.id = newProduct._id
-      return new Promise(function(resolve, reject) {
+      return new Promise((resolve, reject) => {
         newProduct.save((err) => {
           if (err) reject(err)
           else resolve(newProduct)
@@ -94,10 +94,41 @@ const mutationAdd = {
     }
 }
 
+// FIXME:0 rename this motherfucker
+
+const mutationDestroy = {
+  type: productType,
+  description: 'Destroy product',
+  args: {
+    id: {
+      name: 'Product ID',
+      type: new GraphQLNonNull(GraphQLString)
+    }
+  },
+  resolve: (root, args) => {
+    return new Promise((resolve, reject) => {
+      PRODUCT.findById(args.id, (err, product) => {
+        if (err) {
+          reject(err)
+        } else if (!product) {
+          reject('Product Not found')
+        } else {
+          product.remove((err) => {
+            if (err) reject(err)
+            else resolve(product)
+          })
+        }
+      })
+    })
+  }
+}
+
+// TODO:10 fix the name accordingl
 const MutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
     add: mutationAdd,
+    destroy: mutationDestroy,
   }
 })
 
